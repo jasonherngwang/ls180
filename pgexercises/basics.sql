@@ -69,7 +69,7 @@ SELECT max(joindate) AS latest
 -- 12. More aggregation
 SELECT firstname,
        surname,
-     joindate
+       joindate
   FROM cd.members
  WHERE joindate = (SELECT max(joindate)
                      FROM cd.members

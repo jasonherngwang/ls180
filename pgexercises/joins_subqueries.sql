@@ -62,8 +62,9 @@ SELECT DISTINCT
 SELECT m.firstname || ' ' || m.surname AS member,
        f.name AS facility,
        CASE m.firstname || ' ' || m.surname
-       WHEN 'GUEST GUEST' THEN f.guestcost
-       ELSE f.membercost
+            WHEN 'GUEST GUEST'
+            THEN f.guestcost
+            ELSE f.membercost
        END * b.slots AS cost
   FROM cd.members m
   JOIN cd.bookings b
@@ -71,8 +72,41 @@ SELECT m.firstname || ' ' || m.surname AS member,
   JOIN cd.facilities f
     ON b.facid = f.facid
  WHERE CASE m.firstname || ' ' || m.surname
-       WHEN 'GUEST GUEST' THEN f.guestcost
-       ELSE f.membercost
+            WHEN 'GUEST GUEST'
+            THEN f.guestcost
+            ELSE f.membercost
        END * b.slots > 30
    AND date_trunc('day', b.starttime) = '2012-09-14'
+ ORDER BY cost DESC;
+
+-- 7. Produce a list of all members, along with their recommender, using no joins.
+SELECT DISTINCT 
+       m.firstname || ' ' || m.surname AS member,
+       (SELECT r.firstname || ' ' || r.surname
+          FROM cd.members r
+         WHERE r.memid = m.recommendedby
+       ) AS recommender
+  FROM cd.members m
+ ORDER BY member;
+
+-- 8. Produce a list of costly bookings, using a subquery
+-- Cannot use column alias `cost` with WHERE, so we execute subquery first, so `cost` is now a column name and no longer an alias.
+SELECT member,
+       facility,
+       cost
+  FROM (
+       SELECT m.firstname || ' ' || m.surname AS member,
+              f.name AS facility,
+              CASE WHEN m.memid = 0
+                   THEN f.guestcost * b.slots
+                   ELSE f.membercost * b.slots
+              END AS cost
+         FROM cd.members m
+         JOIN cd.bookings b
+           ON m.memid = b.memid
+         JOIN cd.facilities f
+           ON b.facid = f.facid
+        WHERE date_trunc('day', b.starttime) = '2012-09-14'
+       ) AS bookings
+ WHERE cost > 30
  ORDER BY cost DESC;
