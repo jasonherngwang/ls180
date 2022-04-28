@@ -1,7 +1,12 @@
+-- To execute:
+-- psql -d jason < dml.sql
+
+-- Setup
 DROP DATABASE IF EXISTS workshop;
 CREATE DATABASE workshop;
 
 \c workshop
+
 
 -- Exercise 1
 CREATE TABLE devices (
@@ -13,13 +18,15 @@ CREATE TABLE devices (
 CREATE TABLE parts (
     id          serial  PRIMARY KEY,
     part_number integer UNIQUE NOT NULL,
-    device_id   integer REFERENCES devices (id) ON DELETE CASCADE
+    device_id   integer REFERENCES devices (id)  -- ON DELETE CASCADE is addressed in Exercise 10
 );
+
 
 -- Exercise 2
 INSERT INTO devices (name)
-VALUES ('Accelerometer'),
-       ('Gyroscope');
+SELECT 'Accelerometer'
+ UNION ALL
+SELECT 'Gyroscope';
 
 INSERT INTO parts (part_number, device_id)
 VALUES ( 1, 1),
@@ -34,6 +41,7 @@ VALUES ( 1, 1),
        (70, NULL),
        (71, NULL);
 
+
 -- Exercise 3
 SELECT devices.name, parts.part_number
   FROM devices
@@ -41,10 +49,13 @@ SELECT devices.name, parts.part_number
     ON devices.id = parts.device_id
 ;
 
+
 -- Exercise 4
 SELECT *
   FROM parts
  WHERE substring(part_number::text, 1, 1) = '3';
+--  WHERE part_number::text LIKE '3%';
+
 
 -- Exercise 5
 SELECT devices.name,
@@ -54,16 +65,17 @@ SELECT devices.name,
     ON devices.id = parts.device_id
  GROUP BY devices.name;
 
--- Full join
+-- Full join: Count devices w/o parts, and parts w/o devices.
 -- SELECT CASE WHEN devices.name IS NULL
 --             THEN '(Not assigned)'
 --             ELSE devices.name
---             END,
+--         END,
 --        count(parts.id)
 --   FROM devices
 --   FULL JOIN parts
 --     ON devices.id = parts.device_id
 --  GROUP BY devices.name;
+
 
 -- Exercise 6
 SELECT devices.name,
@@ -74,6 +86,7 @@ SELECT devices.name,
  GROUP BY devices.name
  ORDER BY count(devices.name) DESC;
 
+
 -- Exercise 7
 SELECT part_number, device_id
   FROM parts
@@ -82,6 +95,7 @@ SELECT part_number, device_id
 SELECT part_number, device_id
   FROM parts
  WHERE device_id IS NULL;
+
 
 -- Exercise 8
 INSERT INTO devices (name)
@@ -101,6 +115,7 @@ SELECT name AS oldest_device,
  WHERE created_at = (
            SELECT MIN(created_at) FROM devices
        );
+
 
 -- Exercise 9
 -- UPDATE parts
@@ -138,11 +153,14 @@ UPDATE parts
 
 TABLE parts;
 
+
 -- Exercise 10
--- To make this easier, add ON DELETE CASCADE when defining the Foreign Key.
+-- DELETE FROM devices
+--  WHERE id = 1;
 -- DELETE FROM parts
 --  WHERE device_id = 1;
 
+-- To make parts deletion automatic, add ON DELETE CASCADE when defining the Foreign Key.
 ALTER TABLE parts
  DROP CONSTRAINT parts_device_id_fkey,
   ADD FOREIGN KEY (device_id) REFERENCES devices (id) ON DELETE CASCADE;
@@ -155,3 +173,8 @@ DELETE FROM devices
 SELECT * FROM devices;
 \d parts
 SELECT * FROM parts;
+
+
+-- Teardown
+\c jason
+DROP DATABASE workshop;

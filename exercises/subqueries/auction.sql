@@ -1,12 +1,15 @@
 -- Auction
 
--- Setup
+-- To execute:
+-- psql -d jason < auction.sql
 
+-- Setup
 DROP DATABASE IF EXISTS auction;
 CREATE DATABASE auction;
 
 \c auction
 
+-- Question 1: Set up Database with \copy
 CREATE TABLE bidders (
     id   serial PRIMARY KEY,
     name text   NOT NULL
@@ -47,44 +50,50 @@ TABLE items;
 TABLE bids;
 
 
--- Subquery IN
--- DISTINCT has a greater impact on larger data sets, since we have less to search through.
+-- Question 2: Subquery IN
+-- Remove duplicates before searching through the list.
+-- We perform a search for every row in `items`. DISTINCT reduces the size of the list we are searching through.
+-- EXPLAIN ANALYZE
 SELECT name AS "Bid on Items"
   FROM items
- WHERE id IN (
-           SELECT DISTINCT item_id
-             FROM bids
-       )
-;
+ WHERE id IN (SELECT DISTINCT item_id
+                FROM bids);
+
+-- EXPLAIN ANALYZE
+SELECT name AS "Bid on Items"
+  FROM items
+ WHERE id IN (SELECT item_id
+                FROM bids);
 
 
--- Subquery NOT IN
+-- Question 3: Subquery NOT IN
 SELECT name AS "Not Bid On"
   FROM items
- WHERE id NOT IN (
-           SELECT DISTINCT item_id
-             FROM bids 
-       )
-;
+ WHERE id NOT IN (SELECT DISTINCT item_id
+                    FROM bids);
 
 
--- Subquery EXISTS
+-- Question 4: Subquery EXISTS
 SELECT name
   FROM bidders
- WHERE EXISTS (
-           SELECT 1
-             FROM bids
-            WHERE bids.bidder_id = bidders.id
-       )
-;
+ WHERE EXISTS (SELECT 1
+                 FROM bids
+                WHERE bids.bidder_id = bidders.id);
 
+-- Using ANY
+SELECT name
+  FROM bidders
+ WHERE id = ANY (SELECT bidder_id
+                 FROM bids);
+
+-- Using JOIN
 SELECT DISTINCT name
   FROM bidders
   JOIN bids
     ON bidders.id = bids.bidder_id;
 
 
--- Query From a Virtual Table
+-- Question 5: Query From a Virtual Table
 SELECT max(bid_counts.count)
   FROM (SELECT count(bidder_id)
           FROM bids
@@ -92,8 +101,15 @@ SELECT max(bid_counts.count)
        ) AS bid_counts
 ;
 
+SELECT max(count)
+  FROM (SELECT count(id)
+          FROM bids
+         GROUP BY bidder_id
+       ) AS bid_counts;
 
--- Scalar Subqueries
+
+-- Question 6: Scalar Subqueries
+EXPLAIN ANALYZE
 SELECT name,
        (SELECT count(item_id)
           FROM bids
@@ -101,6 +117,7 @@ SELECT name,
        )
   FROM items;
 
+EXPLAIN ANALYZE
 SELECT i.name,
        count(b.id)
   FROM items i
@@ -110,7 +127,7 @@ SELECT i.name,
  ORDER BY i.id;
 
 
--- Row Comparison
+-- Question 7: Row Comparison
 -- EXPLAIN ANALYZE
 SELECT * 
   FROM (
@@ -132,7 +149,7 @@ SELECT *
        ROW (name, initial_price, sales_price);
 
 
--- EXPLAIN
+-- Question 8: EXPLAIN
 
 -- EXPLAIN
 SELECT name FROM bidders
@@ -142,10 +159,8 @@ WHERE EXISTS (SELECT 1 FROM bids WHERE bids.bidder_id = bidders.id);
 SELECT name FROM bidders
 WHERE EXISTS (SELECT 1 FROM bids WHERE bids.bidder_id = bidders.id);
 
--- Comparing SQL Statements
-/*
-Subquery has higher startup and total cost and higher planning and execution times.
-*/
+-- Question 9: Comparing SQL Statements
+-- Subquery has higher startup and total cost and higher planning and execution times.
 
 EXPLAIN ANALYZE
 SELECT MAX(bid_counts.count) FROM
@@ -157,3 +172,7 @@ SELECT COUNT(bidder_id) AS max_bid FROM bids
   ORDER BY max_bid DESC
   LIMIT 1;
 
+
+-- Teardown
+\c jason
+DROP DATABASE auction;
