@@ -1,3 +1,9 @@
+-- Setup
+DROP DATABASE IF EXISTS films3;
+CREATE DATABASE films3;
+
+\c films3
+
 --
 -- PostgreSQL database dump
 --
@@ -146,3 +152,8 @@ ALTER TABLE films
 
 \d films
 TABLE films;
+
+
+-- Teardown
+\c jason
+DROP DATABASE films3;

@@ -1,3 +1,4 @@
+-- Setup
 DROP DATABASE IF EXISTS films;
 CREATE DATABASE films;
 
@@ -282,3 +283,8 @@ SELECT d.name AS director,
 -- \d films
 -- TABLE directors_films;
 -- \d directors_films
+
+
+-- Teardown
+\c jason
+DROP DATABASE films;

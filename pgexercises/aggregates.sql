@@ -202,9 +202,97 @@ SELECT f.facid,
  ORDER BY f.facid;
 
 -- Question 14. List each member's first booking after September 1st 2012
+SELECT m.surname,
+       m.firstname,
+       m.memid,
+       min(b.starttime) as starttime
+  FROM cd.members m
+  JOIN cd.bookings b
+    ON m.memid = b.memid
+ WHERE b.starttime >= '2012-09-01'
+ GROUP BY m.memid
+ ORDER BY m.memid;
+
 -- Question 15. Produce a list of member names, with each row containing the total member count
+SELECT count(memid) OVER (),
+       firstname,
+       surname
+  FROM cd.members
+ ORDER BY joindate;
+
+-- Window functions
+-- Can use multiple unrelated window functions in the same query.
+-- ORDER BY limits the window frame.
+SELECT count(*) OVER (PARTITION BY date_trunc('month', joindate)
+                          ORDER BY joindate),
+       count(*) OVER (PARTITION BY date_trunc('month', joindate)
+                          ORDER BY joindate DESC),
+       firstname,
+       surname
+  FROM cd.members
+ ORDER BY joindate;
+
 -- Question 16. Produce a numbered list of members
+-- No partition, so frame is entire data set.
+SELECT row_number() OVER (ORDER BY joindate) AS row_number,
+       firstname,
+       surname
+  FROM cd.members;
+
 -- Question 17. Output the facility id that has the highest number of slots booked, again
+-- Using CTE
+WITH slot_totals AS (SELECT f.facid,
+                            sum(b.slots) AS total
+                       FROM cd.facilities f
+                       JOIN cd.bookings b
+                         ON f.facid = b.facid
+		                  GROUP BY f.facid
+                    )
+SELECT facid,
+       total
+  FROM slot_totals
+ WHERE total = (SELECT max(total) FROM slot_totals)
+ ORDER BY facid;
+
+-- Step-by-step window function
+-- 1. Slot totals
+SELECT facid,
+       sum(slots)
+  FROM cd.bookings
+ GROUP BY facid;
+-- 2. Add ranks
+SELECT facid,
+       total,
+       rank() OVER (ORDER BY total DESC) AS rank
+  FROM (SELECT facid,
+               sum(slots) AS total
+          FROM cd.bookings
+         GROUP BY facid
+       ) AS ranked;
+
+-- 3. Filter to highest rank only
+SELECT facid,
+       total
+  FROM (SELECT facid,
+               total,
+               rank() OVER (ORDER BY total DESC) AS rank
+          FROM (SELECT facid,
+                       sum(slots) AS total
+                  FROM cd.bookings
+                 GROUP BY facid
+               ) AS slot_totals
+       ) AS ranked_by_total
+ WHERE rank = 1;
+-- 4. Merge level 3 subquery with level 2 subquery.
+SELECT facid,
+       total
+  FROM (SELECT facid,
+               sum(slots) AS total,
+               rank() OVER (ORDER BY sum(slots) DESC) AS rank
+          FROM cd.bookings
+         GROUP BY facid) AS ranked_by_total
+ WHERE rank = 1;
+
 -- Question 18. Rank members by (rounded) hours used
 -- Question 19. Find the top three revenue generating facilities
 -- Question 20. Classify facilities by value

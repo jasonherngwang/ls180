@@ -1,3 +1,10 @@
+-- Setup
+DROP DATABASE IF EXISTS films4;
+CREATE DATABASE films4;
+
+\c films4
+
+
 --
 -- PostgreSQL database dump
 --
@@ -141,6 +148,7 @@ ALTER TABLE ONLY films
 \d films
 TABLE films;
 
+
 -- Question 2
 INSERT INTO films (title, year, genre, director, duration)
 VALUES ('Wayne''s World', 1992, 'comedy', 'Penelope Spheeris', 95),
@@ -148,24 +156,29 @@ VALUES ('Wayne''s World', 1992, 'comedy', 'Penelope Spheeris', 95),
 
 TABLE films;
 
+
 -- Question 3
 SELECT DISTINCT genre
   FROM films;
+
 
 -- Question 4
 SELECT genre
   FROM films
  GROUP BY genre;
 
+
 -- Question 5
 SELECT round(avg(duration), 0) as average_duration
   FROM films;
+
 
 -- Question 6
 SELECT genre,
        round(avg(duration), 0) as average_duration
   FROM films
  GROUP BY genre;
+
 
 -- Question 7
 SELECT (year / 10 * 10) || 's' AS decade,
@@ -174,10 +187,12 @@ SELECT (year / 10 * 10) || 's' AS decade,
  GROUP BY decade
  ORDER BY decade;
 
+
 -- Question 8
 SELECT *
   FROM films
  WHERE director LIKE 'John %';
+
 
  -- Question 9
  SELECT genre,
@@ -185,6 +200,7 @@ SELECT *
   FROM films
  GROUP BY genre
  ORDER BY count DESC;
+
 
 -- Question 10
 SELECT year / 10 * 10 AS decade,
@@ -194,9 +210,15 @@ SELECT year / 10 * 10 AS decade,
  GROUP BY decade, genre
  ORDER BY decade;
 
+
 -- Question 11
 SELECT genre,
        sum(duration) AS total_duration
   FROM films
  GROUP BY genre
  ORDER BY total_duration, genre;
+
+
+-- Teardown
+\c jason
+DROP DATABASE films4;

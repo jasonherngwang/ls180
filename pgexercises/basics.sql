@@ -14,8 +14,8 @@ SELECT *
 -- 4. Control which rows are retrieved - part 2
 SELECT facid,
        name,
-     membercost,
-     monthlymaintenance
+       membercost,
+       monthlymaintenance
   FROM cd.facilities
  WHERE membercost > 0
    AND membercost < monthlymaintenance / 50.0;
@@ -35,16 +35,16 @@ SELECT *
 -- 7. Classify results into buckets
 SELECT name,
        CASE WHEN monthlymaintenance > 100
-          THEN 'expensive'
-      ELSE 'cheap'
-     END AS cost
+            THEN 'expensive'
+            ELSE 'cheap'
+       END AS cost
   FROM cd.facilities;
   
 -- 8. Working with dates
 SELECT memid,
        surname,
-     firstname,
-     joindate
+       firstname,
+       joindate
   FROM cd.members
  WHERE joindate >= '2012-09-01';
 -- WHERE joindate >= '2012-09-01 00:00:00';

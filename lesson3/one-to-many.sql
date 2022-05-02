@@ -1,3 +1,9 @@
+-- Setup
+DROP DATABASE IF EXISTS calls_contacts;
+CREATE DATABASE calls_contacts;
+
+\c calls_contacts
+
 --
 -- PostgreSQL database dump
 --
@@ -209,12 +215,14 @@ ALTER TABLE ONLY calls
 TABLE contacts;
 TABLE calls;
 
+
 -- Question 1
 INSERT INTO calls ("when", duration, contact_id)
 VALUES ('2016-01-18 14:47:00', 632, 6);
 
 SELECT *
   FROM calls;
+
 
 -- Question 2
 SELECT calls."when",
@@ -224,8 +232,8 @@ SELECT calls."when",
   JOIN contacts
     ON contacts.id = calls.contact_id
  WHERE contacts.first_name != 'William'
-   AND contacts.last_name != 'Swift'
-;
+   AND contacts.last_name != 'Swift';
+
 
 -- Question 3
 INSERT INTO contacts (first_name, last_name, number)
@@ -236,11 +244,13 @@ INSERT INTO calls ("when", duration, contact_id)
 VALUES ('2016-01-17 11:52:00', 175, 26),
        ('2016-01-18 21:22:00', 79, 27);
 
+
 -- Question 4
 ALTER TABLE contacts
   ADD CONSTRAINT unique_number UNIQUE (number);
 
 \d contacts
+
 
 -- Question 5
 INSERT INTO contacts (first_name, last_name, number)
@@ -253,8 +263,15 @@ DETAIL:  Key (number)=(6343511126) already exists.
 
 TABLE contacts;
 
+
 -- Question 6
 -- "when" is double quoted because it has the same characters as a reserved keyword.
 
+
 -- Question 7
 -- contacts (one, required) to calls (many, optional)
+
+
+-- Teardown
+\c jason
+DROP DATABASE calls_contacts;

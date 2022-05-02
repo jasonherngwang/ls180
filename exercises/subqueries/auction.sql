@@ -98,13 +98,6 @@ SELECT max(bid_counts.count)
   FROM (SELECT count(bidder_id)
           FROM bids
          GROUP BY bids.bidder_id
-       ) AS bid_counts
-;
-
-SELECT max(count)
-  FROM (SELECT count(id)
-          FROM bids
-         GROUP BY bidder_id
        ) AS bid_counts;
 
 
@@ -139,8 +132,7 @@ SELECT *
               ) AS match_sales_price
         WHERE initial_price = 100.00
        ) AS match_initial_price
- WHERE name = 'Painting'
-;
+ WHERE name = 'Painting';
 
 -- EXPLAIN ANALYZE
 SELECT *

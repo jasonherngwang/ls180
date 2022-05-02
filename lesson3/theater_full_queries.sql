@@ -1,5 +1,6 @@
 /*
-Schema
+Schema, for reference
+
 CREATE TABLE customers (
     id integer NOT NULL,
     first_name text NOT NULL,
@@ -33,26 +34,33 @@ CREATE TABLE tickets (
 );
 */
 
+
+-- Setup
+DROP DATABASE IF EXISTS theater;
+CREATE DATABASE theater;
+
+\c theater
+\i ./theater_full.sql
+
 -- Question 2
 SELECT count(id)
   FROM tickets;
 
+
 -- Question 3
--- SELECT count(DISTINCT c.id)
---   FROM customers AS c
---   JOIN tickets AS t
---     ON c.id = t.customer_id;
 SELECT count(DISTINCT customer_id)
   FROM tickets;
+
 
 -- Question 4
 SELECT round( count(DISTINCT t.customer_id) * 100.0
             / count(DISTINCT c.id), 
             2)
-       AS percent
+    AS percent
   FROM customers AS c
   LEFT JOIN tickets AS t
     ON c.id = t.customer_id;
+
 
 -- Question 5
 SELECT e.name,
@@ -62,6 +70,7 @@ SELECT e.name,
     ON e.id = t.event_id
  GROUP BY e.name
  ORDER BY popularity DESC;
+
 
 -- Question 6
 -- SELECT c.id,
@@ -74,8 +83,7 @@ SELECT e.name,
 --   JOIN events AS e
 --     ON e.id = t.event_id
 --  GROUP BY c.id
--- HAVING count(DISTINCT e.id) = 3
--- ;
+-- HAVING count(DISTINCT e.id) = 3;
 
 SELECT c.id,
        c.email,
@@ -84,8 +92,8 @@ SELECT c.id,
   JOIN tickets AS t
     ON c.id = t.customer_id
  GROUP BY c.id
-HAVING count(DISTINCT t.event_id) = 3
-;
+HAVING count(DISTINCT t.event_id) = 3;
+
 
 -- Question 7
 SELECT e.name AS event,
@@ -102,5 +110,9 @@ SELECT e.name AS event,
     ON sec.id = s.section_id
   JOIN events AS e
     ON e.id = t.event_id
- WHERE c.email = 'gennaro.rath@mcdermott.co'
-;
+ WHERE c.email = 'gennaro.rath@mcdermott.co';
+
+
+-- Teardown
+\c jason
+DROP DATABASE theater;

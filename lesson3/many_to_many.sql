@@ -1,7 +1,9 @@
+-- Setup
 DROP DATABASE IF EXISTS books;
 CREATE DATABASE books;
 
 \c books
+
 
 ALTER TABLE IF EXISTS ONLY public.books_categories DROP CONSTRAINT IF EXISTS books_categories_category_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.books_categories DROP CONSTRAINT IF EXISTS books_categories_book_id_fkey;
@@ -98,14 +100,15 @@ TABLE categories;
 TABLE books_categories;
 \d books_categories
 
+
 -- Question 1
 ALTER TABLE books_categories
+ALTER COLUMN book_id
+  SET NOT NULL,
  DROP CONSTRAINT books_categories_book_id_fkey,
   ADD FOREIGN KEY (book_id)
       REFERENCES books (id)
-      ON DELETE CASCADE,
-ALTER COLUMN book_id
-  SET NOT NULL;
+      ON DELETE CASCADE;
 
 ALTER TABLE books_categories
  DROP CONSTRAINT books_categories_category_id_fkey,
@@ -118,6 +121,7 @@ ALTER COLUMN category_id
 TABLE books_categories;
 \d books_categories
 
+
 -- Question 2
 SELECT b.id,
        b.author,
@@ -129,6 +133,7 @@ SELECT b.id,
     ON c.id = b_xref_c.category_id
  GROUP BY b.id
  ORDER BY b.id;
+
 
 -- Question 3
 -- Don't add duplicate categories.
@@ -171,11 +176,13 @@ TABLE books;
 TABLE categories;
 TABLE books_categories;
 
+
 -- Question 4
 ALTER TABLE books_categories
   ADD UNIQUE (book_id, category_id);
 
 \d books_categories
+
 
 -- Question 5
 SELECT c.name,
@@ -188,3 +195,8 @@ SELECT c.name,
     ON b.id = b_xref_c.book_id
  GROUP BY c.name
  ORDER BY c.name;
+
+
+ -- Teardown
+\c jason
+DROP DATABASE books;

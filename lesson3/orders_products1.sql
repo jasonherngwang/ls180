@@ -1,3 +1,10 @@
+-- Setup
+DROP DATABASE IF EXISTS orders_products;
+CREATE DATABASE orders_products;
+
+\c orders_products
+
+
 --
 -- PostgreSQL database dump
 --
@@ -178,6 +185,7 @@ ALTER TABLE ONLY products
 \d orders
 \d products
 
+
 -- Question 2
 -- ALTER TABLE orders
 --   ADD FOREIGN KEY (product_id)
@@ -186,10 +194,10 @@ ALTER TABLE ONLY products
 ALTER TABLE orders
   ADD CONSTRAINT orders_product_id_fkey
       FOREIGN KEY (product_id)
-      REFERENCES products (id)
-;
+      REFERENCES products (id);
 
 \d orders
+
 
 -- Question 3
 INSERT INTO products (name)
@@ -204,11 +212,13 @@ VALUES (1, 10),
 TABLE products;
 TABLE orders;
 
+
 -- Question 4
 SELECT orders.quantity, products.name
   FROM orders
   JOIN products
     ON products.id = orders.product_id;
+
 
 -- Question 5
 -- Yes. Unlike PKs, FKs do not have a NOT NULL constraint.
@@ -216,6 +226,7 @@ INSERT INTO orders (quantity)
 VALUES (10);
 
 TABLE orders;
+
 
 -- Question 6 and 7
 -- Must remove the order with a NULL FK, before we add the constraint.
@@ -228,13 +239,14 @@ ALTER COLUMN product_id
 
 \d orders
 
+
 -- Question 8
 DROP TABLE IF EXISTS reviews;
 
 CREATE TABLE reviews (
-    id serial PRIMARY KEY,
-    product_id integer REFERENCES products(id),
-    review text NOT NULL
+    id         serial   PRIMARY KEY,
+    product_id integer  REFERENCES products(id),
+    review     text NOT NULL
 );
 
 INSERT INTO reviews (product_id, review)
@@ -242,7 +254,13 @@ VALUES (1, 'a little small'),
        (1, 'very round!'),
        (2, 'could have been smaller');
 
-TABLE reviews
+TABLE reviews;
+
 
 -- Question 9
-FKs allow NULL unless a NOT NULL constraint is added.
+-- FKs allow NULL unless a NOT NULL constraint is added.
+
+
+-- Teardown
+\c jason
+DROP DATABASE orders_products;

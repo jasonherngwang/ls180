@@ -35,13 +35,13 @@ UPDATE cd.facilities
 -- Question 6. Update a row based on the contents of another row
 UPDATE cd.facilities
    SET membercost = (SELECT membercost * 1.1
-					   FROM cd.facilities
-					  WHERE facid = 0
-					),
+				    	     FROM cd.facilities
+				    	    WHERE facid = 0
+				    	  ),
        guestcost = (SELECT guestcost * 1.1
-					  FROM cd.facilities
-					 WHERE facid = 0
-				   )
+				          FROM cd.facilities
+				         WHERE facid = 0
+				       )
 WHERE facid = 1;
 
 UPDATE cd.facilities f
@@ -59,13 +59,12 @@ DELETE FROM cd.members
 
 -- Question 9. Delete based on a subquery
 DELETE FROM cd.members
- WHERE memid IN (
-           SELECT m.memid
-		     FROM cd.members m
-             LEFT JOIN cd.bookings b
-               ON m.memid = b.memid
-            WHERE b.memid IS NULL
-       );
+ WHERE memid IN (SELECT m.memid
+		             FROM cd.members m
+                   LEFT JOIN cd.bookings b
+                     ON m.memid = b.memid
+                  WHERE b.memid IS NULL
+                );
 
 DELETE FROM cd.members
  WHERE memid NOT IN (SELECT memid
